@@ -1,0 +1,1 @@
+This is a tool to help Health Professions Educators align their career activities with their personal mission and vision. The user can enter activities as "digital sticky notes" on the grid and move them around as reflections and priorities change. It is recommended to save the completed grid as a .JSOM file on your own computer. 
