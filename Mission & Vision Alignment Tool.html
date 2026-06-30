@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<!-- saved from url=(0076)file:///Users/katherine/Desktop/Mission%20&%20Vision%20Alignment%20Tool.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mission &amp; Vision Alignment Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+  <link href="./Mission &amp; Vision Alignment Tool_files/css2" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #f5ede0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 24px 56px;
+      color: #2c2218;
+    }
+
+    /* ── Header ── */
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #c4622d;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 52px;
+      font-weight: 800;
+      text-align: center;
+      color: #1e1610;
+      line-height: 1.1;
+      margin-bottom: 14px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: #4a3728;
+      text-align: center;
+      margin-bottom: 36px;
+      max-width: 540px;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 28px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      padding: 6px 12px;
+      border-radius: 100px;
+      border: 1px solid #e0d0be;
+    }
+    .color-row span {
+      font-size: 12px;
+      color: #2c2218;
+      font-weight: 500;
+      margin-right: 2px;
+    }
+    .color-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.1s, border-color 0.15s;
+    }
+    .color-dot:hover { transform: scale(1.2); }
+    .color-dot.selected { border-color: #1e1610; }
+
+    .tool-btn {
+      padding: 7px 16px;
+      border-radius: 100px;
+      border: 1px solid #e0d0be;
+      background: white;
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      color: #2c2218;
+      font-weight: 500;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .tool-btn:hover { background: #efe4d4; border-color: #c4a882; }
+    .tool-btn.pdf-btn {
+      background: #c4622d;
+      border-color: #c4622d;
+      color: white;
+    }
+    .tool-btn.pdf-btn:hover { background: #a84e22; border-color: #a84e22; }
+    .tool-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .note-count {
+      font-size: 12px;
+      color: #2c2218;
+      padding: 7px 14px;
+      background: white;
+      border-radius: 100px;
+      border: 1px solid #e0d0be;
+    }
+
+    /* ── Chart wrapper ── */
+    .chart-outer {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .y-axis-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      user-select: none;
+      height: 580px;
+      justify-content: center;
+    }
+    .y-axis-label {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 15px;
+      font-style: italic;
+      color: #2c2218;
+      white-space: nowrap;
+    }
+    .y-arr {
+      font-style: normal;
+      font-size: 20px;
+      color: #c4622d;
+      line-height: 1;
+    }
+
+    .chart-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ── Grid ── */
+    .grid {
+      position: relative;
+      width: 660px;
+      height: 580px;
+      border: 3px solid #1e1610;
+      background: white;
+      cursor: crosshair;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Quadrants */
+    .quadrant {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      pointer-events: none;
+    }
+    .q-tl { top: 0; left: 0; background: #c9e8df; }
+    .q-tr { top: 0; right: 0; background: #f2ddd2; }
+    .q-bl { bottom: 0; left: 0; background: #dfd8f0; }
+    .q-br { bottom: 0; right: 0; background: #f5e6d0; }
+
+    /* Quadrant corner labels */
+    .q-corner-label {
+      position: absolute;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      line-height: 1.5;
+      padding: 10px 12px;
+      pointer-events: none;
+    }
+    .q-corner-label.tl { top: 0; left: 0; color: #145240; }
+    .q-corner-label.tr { top: 0; right: 0; text-align: right; color: #8b3615; }
+    .q-corner-label.bl { bottom: 0; left: 0; color: #3d1f80; }
+    .q-corner-label.br { bottom: 0; right: 0; text-align: right; color: #6b4210; }
+
+    /* Axis dividers */
+    .axis-h {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: #1e1610;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+    .axis-v {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 1px;
+      height: 100%;
+      background: #1e1610;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+
+    /* Center dot */
+    .center-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 18px;
+      height: 18px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 2px solid #c4622d;
+      background: #1e1610;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Neutral pill */
+    .neutral-pill {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      background: #1e1610;
+      color: white;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* X-axis label */
+    .x-axis-label {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 15px;
+      font-style: italic;
+      color: #2c2218;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      user-select: none;
+      border-top: 2px solid #1e1610;
+      width: 660px;
+      padding-top: 8px;
+    }
+    .x-axis-label .arr { font-style: normal; font-size: 18px; color: #c4622d; }
+    .x-axis-label .text { flex: 1; text-align: center; }
+
+    /* ── Notes ── */
+    .note {
+      position: absolute;
+      min-width: 110px;
+      max-width: 190px;
+      border-radius: 2px;
+      font-size: 13px;
+      line-height: 1.5;
+      cursor: grab;
+      word-break: break-word;
+      z-index: 10;
+      padding: 10px 30px 10px 12px;
+      box-shadow: 2px 4px 10px rgba(30,22,16,0.15), 0 1px 3px rgba(30,22,16,0.08);
+      transition: box-shadow 0.15s;
+    }
+    .note:active, .note.dragging {
+      cursor: grabbing;
+      box-shadow: 5px 8px 18px rgba(30,22,16,0.22);
+      z-index: 100;
+    }
+
+    .note-text {
+      outline: none;
+      min-height: 20px;
+    }
+    .note-text[contenteditable="true"] {
+      border-bottom: 1.5px dashed rgba(0,0,0,0.3);
+      padding-bottom: 2px;
+    }
+
+    .note-del {
+      position: absolute;
+      top: 5px;
+      right: 6px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,0.1);
+      cursor: pointer;
+      font-size: 13px;
+      color: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      padding: 0;
+      transition: background 0.12s, color 0.12s;
+    }
+    .note-del:hover { background: rgba(0,0,0,0.22); color: rgba(0,0,0,0.8); }
+
+    /* ── Popup ── */
+    .popup {
+      position: absolute;
+      background: white;
+      border: 1px solid #e0d0be;
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 6px 24px rgba(30,22,16,0.14);
+      z-index: 200;
+      min-width: 210px;
+    }
+    .popup textarea {
+      width: 100%;
+      border: 1px solid #d8c8b0;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      resize: none;
+      outline: none;
+      color: #2c2218;
+      background: #faf5ef;
+      min-height: 68px;
+    }
+    .popup textarea:focus { border-color: #c4622d; }
+    .popup-btns {
+      display: flex;
+      justify-content: flex-end;
+      gap: 7px;
+      margin-top: 8px;
+    }
+    .popup-btns button {
+      padding: 5px 14px;
+      border-radius: 6px;
+      border: 1px solid #d8c8b0;
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      background: white;
+      color: #2c2218;
+      font-weight: 500;
+    }
+    .popup-btns .btn-add {
+      background: #c4622d;
+      border-color: #c4622d;
+      color: white;
+    }
+    .popup-btns .btn-add:hover { background: #a84e22; }
+
+    .hint {
+      font-size: 12px;
+      color: #4a3728;
+      text-align: center;
+      margin-top: 14px;
+    }
+
+    /* PDF capture: hide delete buttons */
+    .pdf-capture .note-del { display: none !important; }
+    .pdf-capture .note { box-shadow: 1px 2px 5px rgba(30,22,16,0.2) !important; padding-right: 12px !important; }
+  </style>
+</head>
+<body>
+
+<div id="export-area">
+  <p class="eyebrow">Mentorship Worksheet</p>
+  <h1>Mission &amp; Vision Alignment Tool</h1>
+  <p class="subtitle">Click anywhere on the chart to add a note. Drag notes to reposition them.</p>
+
+  <div class="chart-outer">
+    <div class="y-axis-wrapper">
+      <span class="y-arr">↑</span>
+      <div class="y-axis-label">Personal Passion</div>
+      <span class="y-arr">↓</span>
+    </div>
+
+    <div class="chart-col">
+      <div class="grid" id="grid">
+        <div class="quadrant q-tl"></div>
+        <div class="quadrant q-tr"></div>
+        <div class="quadrant q-bl"></div>
+        <div class="quadrant q-br"></div>
+
+        <div class="q-corner-label tl">High Passion<br>Low Inst. Value</div>
+        <div class="q-corner-label tr">High Passion<br>High Inst. Value</div>
+        <div class="q-corner-label bl">Low Passion<br>Low Inst. Value</div>
+        <div class="q-corner-label br">Low Passion<br>High Inst. Value</div>
+
+        <div class="axis-h"></div>
+        <div class="axis-v"></div>
+
+        <div class="neutral-pill">Neutral</div>
+        <div class="center-dot"></div>
+      </div>
+
+      <div class="x-axis-label">
+        <span class="arr">←</span>
+        <span class="text">Institutional / Supervisor Value</span>
+        <span class="arr">→</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="color-row">
+    <span>Color:</span>
+    <div class="color-dot selected" data-bg="#fef08a" data-fg="#713f12" style="background:#fef08a" title="Yellow"></div>
+    <div class="color-dot" data-bg="#bbf7d0" data-fg="#14532d" style="background:#bbf7d0" title="Green"></div>
+    <div class="color-dot" data-bg="#bae6fd" data-fg="#0c4a6e" style="background:#bae6fd" title="Blue"></div>
+    <div class="color-dot" data-bg="#fecaca" data-fg="#7f1d1d" style="background:#fecaca" title="Red"></div>
+    <div class="color-dot" data-bg="#e9d5ff" data-fg="#4c1d95" style="background:#e9d5ff" title="Purple"></div>
+    <div class="color-dot" data-bg="#fed7aa" data-fg="#7c2d12" style="background:#fed7aa" title="Orange"></div>
+    <div class="color-dot" data-bg="#f5f5f5" data-fg="#374151" style="background:#f5f5f5;border:1px solid #d1d5db" title="White"></div>
+  </div>
+  <button class="tool-btn pdf-btn" id="pdfBtn">Download PDF</button>
+  <button class="tool-btn" id="exportBtn">Export JSON</button>
+  <button class="tool-btn" id="importBtn">Import JSON</button>
+  <button class="tool-btn" id="clearBtn">Clear all</button>
+  <span class="note-count" id="noteCount">0 notes</span>
+</div>
+
+<p class="hint">Double-click a note to edit · Drag to move · Click the × to remove</p>
+
+<input type="file" id="fileInput" accept=".json" style="display:none">
+
+<script src="./Mission &amp; Vision Alignment Tool_files/html2canvas.min.js"></script>
+<script src="./Mission &amp; Vision Alignment Tool_files/jspdf.umd.min.js"></script>
+<script>
+  const grid = document.getElementById('grid');
+  let notes = [];
+  let activeColor = { bg: '#fef08a', fg: '#713f12' };
+  let drag = null;
+  let popup = null;
+  let pendingPos = { x: 0, y: 0 };
+  let idCounter = 0;
+
+  /* Color picker */
+  document.querySelectorAll('.color-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+      dot.classList.add('selected');
+      activeColor = { bg: dot.dataset.bg, fg: dot.dataset.fg };
+    });
+  });
+
+  function updateCount() {
+    document.getElementById('noteCount').textContent =
+      notes.length + ' note' + (notes.length !== 1 ? 's' : '');
+  }
+
+  function makeNote(data) {
+    const el = document.createElement('div');
+    el.className = 'note';
+    el.style.left = data.x + 'px';
+    el.style.top = data.y + 'px';
+    el.style.background = data.bg;
+    el.style.color = data.fg;
+
+    const txt = document.createElement('div');
+    txt.className = 'note-text';
+    txt.contentEditable = 'false';
+    txt.textContent = data.text;
+
+    const del = document.createElement('button');
+    del.className = 'note-del';
+    del.textContent = '×';
+    del.title = 'Remove';
+    del.addEventListener('click', e => {
+      e.stopPropagation();
+      notes = notes.filter(n => n.id !== data.id);
+      el.remove();
+      updateCount();
+    });
+
+    txt.addEventListener('dblclick', e => {
+      e.stopPropagation();
+      txt.contentEditable = 'true';
+      txt.focus();
+      el.style.cursor = 'text';
+    });
+    txt.addEventListener('blur', () => {
+      txt.contentEditable = 'false';
+      data.text = txt.textContent;
+      el.style.cursor = 'grab';
+    });
+    txt.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); txt.blur(); }
+      if (e.key === 'Escape') txt.blur();
+      e.stopPropagation();
+    });
+
+    el.addEventListener('mousedown', e => {
+      if (e.target === del || txt.contentEditable === 'true') return;
+      e.preventDefault();
+      const er = el.getBoundingClientRect();
+      drag = { el, data, ox: e.clientX - er.left, oy: e.clientY - er.top };
+      el.classList.add('dragging');
+    });
+
+    el.appendChild(txt);
+    el.appendChild(del);
+    return el;
+  }
+
+  function addNote(x, y, text, bg, fg, id) {
+    const data = { id: id ?? ++idCounter, x, y, text, bg, fg };
+    notes.push(data);
+    grid.appendChild(makeNote(data));
+    updateCount();
+  }
+
+  /* Grid click → popup */
+  grid.addEventListener('mousedown', e => {
+    const blocked = ['.note', '.popup', '.q-corner-label', '.neutral-pill', '.center-dot'];
+    if (blocked.some(s => e.target.closest(s))) return;
+    if (drag) return;
+    if (popup) { closePopup(); return; }
+    const r = grid.getBoundingClientRect();
+    pendingPos = { x: e.clientX - r.left, y: e.clientY - r.top };
+    openPopup(pendingPos.x, pendingPos.y);
+  });
+
+  function openPopup(x, y) {
+    popup = document.createElement('div');
+    popup.className = 'popup';
+
+    const ta = document.createElement('textarea');
+    ta.placeholder = 'Describe this activity or goal…';
+
+    const btns = document.createElement('div');
+    btns.className = 'popup-btns';
+
+    const cancel = document.createElement('button');
+    cancel.textContent = 'Cancel';
+    cancel.addEventListener('click', closePopup);
+
+    const add = document.createElement('button');
+    add.className = 'btn-add';
+    add.textContent = 'Add note';
+    add.addEventListener('click', () => {
+      const t = ta.value.trim();
+      if (!t) { ta.focus(); return; }
+      closePopup();
+      addNote(pendingPos.x - 65, pendingPos.y - 22, t, activeColor.bg, activeColor.fg);
+    });
+
+    ta.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); add.click(); }
+      if (e.key === 'Escape') closePopup();
+    });
+
+    btns.appendChild(cancel);
+    btns.appendChild(add);
+    popup.appendChild(ta);
+    popup.appendChild(btns);
+
+    const gw = grid.offsetWidth, gh = grid.offsetHeight;
+    let left = x + 10, top = y + 10;
+    if (left + 224 > gw) left = x - 228;
+    if (top + 130 > gh) top = y - 134;
+    popup.style.left = Math.max(4, left) + 'px';
+    popup.style.top = Math.max(4, top) + 'px';
+
+    grid.appendChild(popup);
+    setTimeout(() => ta.focus(), 10);
+  }
+
+  function closePopup() {
+    if (popup) { popup.remove(); popup = null; }
+  }
+
+  document.addEventListener('mousemove', e => {
+    if (!drag) return;
+    const r = grid.getBoundingClientRect();
+    let nx = e.clientX - r.left - drag.ox;
+    let ny = e.clientY - r.top - drag.oy;
+    nx = Math.max(0, Math.min(nx, grid.offsetWidth - drag.el.offsetWidth));
+    ny = Math.max(0, Math.min(ny, grid.offsetHeight - drag.el.offsetHeight));
+    drag.el.style.left = nx + 'px';
+    drag.el.style.top = ny + 'px';
+    drag.data.x = nx;
+    drag.data.y = ny;
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (drag) { drag.el.classList.remove('dragging'); drag = null; }
+  });
+
+  document.addEventListener('mousedown', e => {
+    if (popup && !popup.contains(e.target) && !grid.contains(e.target)) closePopup();
+  });
+
+  /* ── PDF Export ── */
+  document.getElementById('pdfBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('pdfBtn');
+    btn.disabled = true;
+    btn.textContent = 'Generating…';
+    closePopup();
+
+    const area = document.getElementById('export-area');
+    area.classList.add('pdf-capture');
+
+    try {
+      const canvas = await html2canvas(area, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#f5ede0',
+        logging: false
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+
+      const pdfW = 297; // A4 landscape mm
+      const pdfH = 210;
+      const ratio = canvas.width / canvas.height;
+      let imgW = pdfW - 20;
+      let imgH = imgW / ratio;
+      if (imgH > pdfH - 20) {
+        imgH = pdfH - 20;
+        imgW = imgH * ratio;
+      }
+      const x = (pdfW - imgW) / 2;
+      const y = (pdfH - imgH) / 2;
+
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+      pdf.addImage(imgData, 'PNG', x, y, imgW, imgH);
+      pdf.save('mission-vision-alignment.pdf');
+    } catch (err) {
+      alert('PDF generation failed. Try again or use your browser\'s Print → Save as PDF option.');
+      console.error(err);
+    } finally {
+      area.classList.remove('pdf-capture');
+      btn.disabled = false;
+      btn.textContent = 'Download PDF';
+    }
+  });
+
+  /* JSON Export */
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify({ notes }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'alignment-tool-notes.json';
+    a.click();
+  });
+
+  /* JSON Import */
+  document.getElementById('importBtn').addEventListener('click', () => document.getElementById('fileInput').click());
+  document.getElementById('fileInput').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (Array.isArray(data.notes)) {
+          clearAll();
+          data.notes.forEach(n => addNote(n.x, n.y, n.text, n.bg, n.fg, n.id));
+        }
+      } catch { alert('Could not parse the file. Make sure it is a valid export.'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  /* Clear */
+  function clearAll() {
+    document.querySelectorAll('.note').forEach(n => n.remove());
+    notes = [];
+    updateCount();
+  }
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    if (notes.length === 0 || confirm('Remove all ' + notes.length + ' notes?')) clearAll();
+  });
+</script>
+
+
+</body></html>
